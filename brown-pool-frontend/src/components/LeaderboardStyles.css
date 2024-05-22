@@ -1,0 +1,66 @@
+.leaderboard-div {
+    font-family: 'Open Sans', sans-serif;
+}
+
+.leaderboard-banner {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    background-color: #C00404;
+    border-radius: .8rem .8rem 0 0;
+    margin-top: 5%;
+
+    width: 75%;
+    transform: translate(12.5%);
+
+    border-bottom: solid black 0.1vw;
+}
+
+h1 {
+    font-weight: 500;
+    font-size: 3.75vw;
+    letter-spacing: 0.1vw;
+    color: white;
+    font-weight: bold;
+}
+
+.rankings-section {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+
+    padding-left: 5%;
+    padding-right: 5%;
+}
+
+.leaderboard-table {
+    width: 100%;
+    margin-top: 2%;
+
+    display: table;
+
+    border-collapse: collapse;
+    border-spacing: 0 1vw;
+}
+
+th {
+    padding-bottom: 0.5%;
+}
+
+tr {
+    border-bottom: solid thin rgba(99, 99, 99, 0.404);
+    font-size: 1.1vw;
+}
+
+.member-rows {
+    border-bottom: solid thin rgba(99, 99, 99, 0.404);
+    font-size: 1.4vw;
+}
+
+td {
+    display: table-cell;
+    text-align: center;
+
+    padding-top: 1%;
+    padding-bottom: 1%;
+}
