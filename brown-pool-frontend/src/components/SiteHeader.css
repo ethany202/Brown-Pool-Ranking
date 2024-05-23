@@ -1,0 +1,42 @@
+.header-container {
+    display: block;
+    padding-bottom: 5%;
+
+    font-family: 'Open Sans', sans-serif;
+}
+
+.logo {
+    position: relative;
+    /* display: inline-block; */
+    vertical-align: top;
+    transform: scale(30%);
+    margin-bottom: -8%;
+    margin-top: -3%;
+    margin-left: -7%;
+
+    float: left;
+}
+
+.page-links {
+    position: relative;
+    /* display: inline-block; */
+    vertical-align: top;
+    margin-top: 4%;
+    margin-right: 4%;
+    /* text-align: right; */
+    float: right;
+
+}
+
+.site-header-links {
+    padding: 2vw;
+    text-decoration: none;
+    font-size: 1.3vw;
+    color: black;
+    text-transform: uppercase;
+    font-weight: bold;
+}
+
+.site-header-links:hover {
+    color: #C00404;
+}

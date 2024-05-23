@@ -1,0 +1,97 @@
+.title-background {
+    background-color: #C00404;
+}
+
+.club-title {
+    text-align: center;
+    justify-content: center;
+
+    padding: 5%;
+    margin: 5%;
+    margin-bottom: 0%;
+    /* margin-left: 20%;
+    margin-right: 20%; */
+    font-family: 'Open Sans', sans-serif;
+
+    background-color: beige;
+
+    /* border: black solid 0.1vw; */
+}
+
+.home-title {
+    color: black;
+    font-size: 6.5vw;
+
+    animation: fadeIn 2s;
+}
+
+.club-logistics {
+    /* background-color: #C00404; */
+    display: block;
+    font-family: 'Open Sans', sans-serif;
+
+    background-color: #f8f7f5;
+    padding-top: 2%;
+    padding-bottom: 5%;
+
+    border-bottom: black solid 0.1vw;
+}
+
+.about-title {
+    /* align-items: center;
+    text-align: center;
+    justify-content: center; */
+    font-size: 2.35vw;
+    font-weight: 700;
+    margin-left: 15%;
+
+    animation: fadeIn 2s;
+}
+
+.club-logistics-paragraphs {
+    animation: fadeIn 2s;
+    margin-left: 7%;
+    margin-right: 7%;
+
+    font-size: 1.35vw;
+
+    line-height: 2.5em;
+}
+
+.player-signup {
+    background-color: #C00404;
+    font-family: 'Open Sans', sans-serif;
+    display: block;
+
+    color: white;
+
+    padding-bottom: 5%;
+
+}
+
+.compete-title {
+    font-size: 2.35vw;
+    font-weight: 700;
+
+    animation: fadeIn 2s;
+
+    /* float: right; */
+    text-align: right;
+    margin-right: 15%;
+
+    margin-top: auto;
+
+    padding-top: 5%;
+}
+
+
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
+}
