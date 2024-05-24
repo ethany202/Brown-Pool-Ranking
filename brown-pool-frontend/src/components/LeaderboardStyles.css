@@ -17,9 +17,9 @@
     border-bottom: solid black 0.1vw;
 }
 
-h1 {
+.leaderboard-title {
     font-weight: 500;
-    font-size: 3.75vw;
+    font-size: 4.5vw;
     letter-spacing: 0.2vw;
     color: white;
     font-weight: bold;

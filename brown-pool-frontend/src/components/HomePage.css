@@ -15,6 +15,8 @@
 
     background-color: beige;
 
+    text-transform: uppercase;
+
     /* border: black solid 0.1vw; */
 }
 
@@ -82,6 +84,56 @@
     margin-top: auto;
 
     padding-top: 5%;
+}
+
+.join-form {
+    text-align: center;
+    /* align-items: center; */
+    margin-top: 5%;
+    margin-bottom: 2%;
+
+    animation: fadeIn 2s;
+
+}
+
+.email-input {
+    margin: 2%;
+    padding: 0.9vw;
+    padding-right: 5vw;
+
+    font-size: 1.25vw;
+    font-family: 'Open Sans', sans-serif;
+
+    letter-spacing: 0.05vw;
+
+    transition: none;
+
+    border: black solid 0.05vw;
+    border-radius: 0.5em;
+}
+
+.join-button {
+    border: none;
+    border-radius: 0.5em;
+
+    font-family: 'Open Sans', sans-serif;
+    /* font-weight: bold; */
+    font-weight: 600;
+    font-size: 1vw;
+
+    letter-spacing: 0.05vw;
+    text-transform: uppercase;
+
+    padding: 0.75% 1.25%;
+
+    background-color: #FFC72C;
+    color: black;
+}
+
+.join-button:hover {
+    background-color: white;
+    color: #C00404;
+    cursor: pointer;
 }
 
 

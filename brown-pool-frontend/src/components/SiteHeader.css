@@ -15,7 +15,21 @@
     margin-left: -7%;
 
     float: left;
+
+
+    width: 30%;
+    height: auto;
 }
+
+/* .cue-sticks-design {
+    transform: scale(20%);
+    vertical-align: top;
+
+    width: 30%;
+    height: auto;
+
+    margin: auto;
+} */
 
 .page-links {
     position: relative;

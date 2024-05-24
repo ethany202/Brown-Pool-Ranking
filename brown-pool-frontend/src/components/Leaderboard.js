@@ -22,7 +22,7 @@ export default function Leaderboard() {
     return (
         <div className="leaderboard-div">
             <div className="leaderboard-banner">
-                <h1>Leaderboard</h1>
+                <h1 className="leaderboard-title">Leaderboard</h1>
             </div>
             <div className="rankings-section">
                 <table className="leaderboard-table">
