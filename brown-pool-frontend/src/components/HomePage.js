@@ -5,7 +5,9 @@ import { useState } from 'react'
 export default function HomePage() {
 
     const [email, setEmail] = useState("")
-    const [smtpResult, setSmtpResult] = useState({ status: 1 })
+    const [name, setName] = useState("")
+
+    // const [smtpResult, setSmtpResult] = useState({ status: 1 })
 
     const sendJoinRequest = (event) => {
         event.preventDefault();
@@ -16,22 +18,19 @@ export default function HomePage() {
             method: 'POST',
             mode: "cors",
             body: JSON.stringify({
-                email: email
+                email: email,
+                name: name
             }),
             headers: {
                 'Content-type': 'application/json; charset=UTF-8'
             }
         })
-            .then((response) => response.json())
-            .then((json) => { setSmtpResult(json); console.log(json) })
+            // .then((response) => response.json())
+            // .then((json) => { setSmtpResult(json); console.log(json) })
             .catch(err => console.log(err))
 
-        if (smtpResult.status === 0) {
-            alert("An email has been sent for confirmation.")
-        }
-        else {
-            alert("Please enter a valid email.")
-        }
+        alert("An email has been sent for confirmation.")
+
     }
 
     return (
@@ -62,6 +61,8 @@ export default function HomePage() {
                 </p>
                 <form className="join-form" onSubmit={sendJoinRequest}>
                     <input className="email-input" type="text" placeholder="Email (@brown.edu)" onChange={(event) => setEmail(event.target.value)} />
+                    <br></br>
+                    <input className="email-input" type="text" placeholder="Name" onChange={(event) => setName(event.target.value)} />
                     <br></br>
                     <button className="join-button" type='submit'>Join</button>
                 </form>
