@@ -3,6 +3,9 @@
 const express = require("express");     // Creating a server:
 // const request = require('request');
 const nodemailer = require('nodemailer');
+//const cors = require('cors') // ONLY use to bypass CORS policy
+const path = require('path')
+
 const app = express();
 const mysql = require('mysql2');
 const clubEmail = "brownpoolclubtest@gmail.com";
@@ -153,30 +156,11 @@ function addMember(email, token) {
 
 // Adds in built-in middleware: middleware parses incoming JSON requests and puts parsed data into "req.body"
 app.use(express.json());
-app.use((req, res, next) => {
-    res.header('Access-Control-Allow-Origin', '*');
-    next();
-});
+//app.use(cors())
+app.use(express.static(path.join(__dirname, '..', 'brown-pool-frontend', 'build')));
 
-
-// GET request to "/home"
-app.get("/home", (req, res) => {
-    console.log("REACHED HOME")
-})
 
 app.post("/join", (req, res) => {
-    // request(
-    //     { url: 'http://localhost:5000/join' },
-    //     (error, response, body) => {
-    //         if (error || response.statusCode !== 200) {
-    //             console.log("ERROR")
-    //         }
-    //         else {
-    //             console.log("New Member Join")
-    //             console.log(res.json())
-    //         }
-    //     }
-    // )
     console.log("New Member Join")
     console.log(req.body.email)
 
@@ -190,8 +174,8 @@ app.post("/join", (req, res) => {
     }
 })
 
-// GET request to "/leaderboard"
-app.get("/leaderboard", (req, res) => {
+// POST request to "/leaderboard"
+app.post("/leaderboard", (req, res) => {
     // res.json({
     //     list: [{ user_id: 202, name: "Ethan Ye", played: 0, points: 0, email: "ethan_ye@brown.edu" }]
     // })
@@ -246,6 +230,11 @@ app.get("/new-member", (req, res) => {
     addMember(email, token)
 
     res.json({ "email": email })
+})
+
+app.get('*', (req, res) => {
+    //console.log(path.join(__dirname, '..', 'brown-pool-frontend', 'index.html'))
+    res.sendFile(path.join(__dirname, '..', 'brown-pool-frontend', 'build/index.html'))
 })
 
 

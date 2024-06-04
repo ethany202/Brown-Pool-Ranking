@@ -8,9 +8,11 @@ export default function Leaderboard() {
     let currentPosition = 0;
 
     useEffect(() => {
+        document.title = 'Leaderboard | Brown Pool Club'
+
         //fetch() is a built-in JavaScript function responsible for making fetches (get/post/ other requests)
         fetch('http://localhost:5000/leaderboard', {
-            mode: "cors"
+            method: 'POST'
         })
             .then(response => response.json())
             .then(data => setPlayerRanks(data))

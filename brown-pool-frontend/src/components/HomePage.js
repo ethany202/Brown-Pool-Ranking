@@ -1,13 +1,11 @@
 import React from 'react'
 import "./HomePage.css"
-import { useState } from 'react'
+import { useState, useEffect } from 'react'
 
 export default function HomePage() {
 
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
-
-    // const [smtpResult, setSmtpResult] = useState({ status: 1 })
 
     const sendJoinRequest = (event) => {
         event.preventDefault();
@@ -25,13 +23,14 @@ export default function HomePage() {
                 'Content-type': 'application/json; charset=UTF-8'
             }
         })
-            // .then((response) => response.json())
-            // .then((json) => { setSmtpResult(json); console.log(json) })
             .catch(err => console.log(err))
 
         alert("An email has been sent for confirmation.")
-
     }
+
+    useEffect(() => {
+        document.title = 'Home | Brown Pool Club'
+    }, []);
 
     return (
         <div className="home-page-container">
