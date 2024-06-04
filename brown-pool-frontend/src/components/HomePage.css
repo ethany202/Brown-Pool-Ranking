@@ -112,6 +112,10 @@
     border-radius: 0.5em;
 }
 
+input:focus {
+    outline: none;
+}
+
 .join-button {
     border: none;
     border-radius: 0.5em;

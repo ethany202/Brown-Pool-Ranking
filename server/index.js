@@ -6,8 +6,6 @@ const nodemailer = require('nodemailer');
 const app = express();
 const mysql = require('mysql2');
 const clubEmail = "brownpoolclubtest@gmail.com";
-var playerRanks = []
-
 
 // Helper functions...
 var transporter = nodemailer.createTransport({
@@ -15,7 +13,7 @@ var transporter = nodemailer.createTransport({
     port: 587,
     service: 'gmail',
     auth: {
-        user: 'brownpoolclubtest@gmail.com',
+        user: clubEmail,
         pass: 'znkq bdpg mxba jmln'
     },
 
@@ -56,6 +54,12 @@ function storeToken(email, userName, token) {
 
             conn.release()
         });
+        pool.end((err, args) => {
+            if (err) {
+                console.log(err)
+            }
+            console.log(args)
+        })
     }
 
     catch (error) {
@@ -188,6 +192,9 @@ app.post("/join", (req, res) => {
 
 // GET request to "/leaderboard"
 app.get("/leaderboard", (req, res) => {
+    // res.json({
+    //     list: [{ user_id: 202, name: "Ethan Ye", played: 0, points: 0, email: "ethan_ye@brown.edu" }]
+    // })
     try {
         const pool = mysql.createPool({
             host: 'h2cwrn74535xdazj.cbetxkdyhwsb.us-east-1.rds.amazonaws.com',
