@@ -239,7 +239,7 @@ app.get('*', (req, res) => {
 
 
 // Starting Server:
-const port = process.env.PORT || 5000;  // Sets the port either to its preset port or port 3000
+const port = process.env.PORT || 80;  // Sets the port either to its preset port or port 3000
 
 app.listen(port, () => {
     console.log(`Listening on port ${port}`);

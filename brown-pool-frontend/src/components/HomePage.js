@@ -12,7 +12,7 @@ export default function HomePage() {
         console.log(email)
 
         // Replace with POST request to server ==> server handles request by sending email
-        fetch('http://localhost:5000/join', {
+        fetch('join', {
             method: 'POST',
             mode: "cors",
             body: JSON.stringify({

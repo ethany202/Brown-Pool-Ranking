@@ -11,7 +11,7 @@ export default function Leaderboard() {
         document.title = 'Leaderboard | Brown Pool Club'
 
         //fetch() is a built-in JavaScript function responsible for making fetches (get/post/ other requests)
-        fetch('http://localhost:5000/leaderboard', {
+        fetch('leaderboard', {
             method: 'POST'
         })
             .then(response => response.json())
