@@ -14,7 +14,6 @@ export default function HomePage() {
         // Replace with POST request to server ==> server handles request by sending email
         fetch('join', {
             method: 'POST',
-            mode: "cors",
             body: JSON.stringify({
                 email: email,
                 name: name
