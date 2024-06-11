@@ -1,0 +1,42 @@
+.footer-section {
+    margin-top: 1vw;
+    margin-bottom: 1vw;
+
+    display: block;
+    padding-bottom: 12.5rem;
+
+    font-family: "Space Grotesk", sans-serif;
+
+
+    /* margin-bottom: 12.5vw; */
+}
+
+.footer-titles {
+    font-size: 1.75vw;
+    text-align: center;
+}
+
+.contact-us-section {
+    float: left;
+    margin-left: 10rem;
+}
+
+.social-media-section {
+    float: right;
+    margin-right: 10rem;
+}
+
+.social-media-icons {
+    display: flex;
+}
+
+.media-icon {
+    width: 3vw;
+    height: auto;
+
+    padding: 0.5rem;
+}
+
+.media-icon:hover {
+    opacity: 50%;
+}

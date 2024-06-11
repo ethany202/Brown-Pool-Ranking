@@ -11,7 +11,7 @@
     margin-bottom: 0%;
     /* margin-left: 20%;
     margin-right: 20%; */
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Playfair Display", serif;
 
     background-color: beige;
 
@@ -30,7 +30,8 @@
 .club-logistics {
     /* background-color: #C00404; */
     display: block;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
+
 
     background-color: #f8f7f5;
     padding-top: 2%;
@@ -43,6 +44,9 @@
     /* align-items: center;
     text-align: center;
     justify-content: center; */
+    /* font-family: "Playfair Display", serif; */
+
+
     font-size: 2.35vw;
     font-weight: 700;
     margin-left: 15%;
@@ -62,7 +66,9 @@
 
 .player-signup {
     background-color: #C00404;
-    font-family: 'Open Sans', sans-serif;
+    /* font-family: 'Open Sans', sans-serif; */
+    font-family: "Space Grotesk", sans-serif;
+
     display: block;
 
     color: white;
@@ -72,6 +78,7 @@
 }
 
 .compete-title {
+    /* font-family: "Playfair Display", serif; */
     font-size: 2.35vw;
     font-weight: 700;
 
@@ -102,7 +109,7 @@
     padding-right: 5vw;
 
     font-size: 1.25vw;
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
 
     letter-spacing: 0.05vw;
 
@@ -120,7 +127,7 @@ input:focus {
     border: none;
     border-radius: 0.5em;
 
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     /* font-weight: bold; */
     font-weight: 600;
     font-size: 1vw;

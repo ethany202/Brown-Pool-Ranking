@@ -13,6 +13,7 @@ export default function SiteHeader() {
             <div className="page-links">
                 <a className="site-header-links" href="/home">Home</a>
                 <a className="site-header-links" href="/leaderboard">Leaderboard</a>
+                <a className="site-header-links" href="/events">Events</a>
                 <a className="site-header-links" href="/team">Meet the Team</a>
             </div>
         </div>

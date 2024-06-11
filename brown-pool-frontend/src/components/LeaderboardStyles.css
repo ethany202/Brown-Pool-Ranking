@@ -1,5 +1,5 @@
 .leaderboard-div {
-    font-family: 'Open Sans', sans-serif;
+    font-family: "Space Grotesk", sans-serif;
     background-color: #f8f7f5;
 }
 
@@ -22,7 +22,7 @@
     font-size: 4.5vw;
     letter-spacing: 0.2vw;
     color: white;
-    font-weight: bold;
+    font-weight: 600;
 
     animation: fadeIn 2s;
 }

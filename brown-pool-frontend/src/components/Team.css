@@ -1,0 +1,87 @@
+.results-div {
+    /* justify-content: center;
+    align-items: center;
+
+    text-align: center;
+    display: block; */
+    margin-top: 4.5vw;
+
+    font-family: "Space Grotesk", sans-serif;
+
+}
+
+.team-title {
+    text-align: center;
+    font-size: 5.5vw;
+    color: black;
+}
+
+.coach-results {
+    /* display: block; */
+    /* margin: 1rem; */
+    /* width: 100%; */
+
+    justify-content: center;
+    align-items: center;
+
+    background-color: beige;
+    color: #c00404;
+
+    border: #c00404 solid 0.2vw;
+}
+
+.coach-img {
+    width: 12vw;
+    height: auto;
+}
+
+.coach-grid {
+    /* margin: 0 auto; */
+    margin-top: -6.5vw;
+    list-style-type: none;
+
+    justify-content: center;
+    align-items: center;
+    text-align: center;
+
+    margin-bottom: 10vw;
+}
+
+.individual-coach {
+    display: inline-block;
+    vertical-align: top;
+
+    padding: 3vw;
+
+    margin: 3.5vw;
+    margin-top: 5vw;
+    margin-bottom: 0vw;
+
+    /* border: solid black 0.1vw; */
+    border-bottom: solid black 0.1vw;
+    border-radius: 0rem;
+
+    opacity: 100%;
+
+    align-items: center;
+    justify-content: center;
+    text-align: center;
+}
+
+/* .individual-coach:hover {
+    opacity: 50%;
+    cursor: pointer;
+} */
+
+.coach-result-name {
+    font-size: 2.65vw;
+}
+
+.coach-school {
+    font-size: 1.65vw;
+    padding-bottom: 0.5vw;
+}
+
+.coach-rating {
+    font-size: 1.35vw;
+}

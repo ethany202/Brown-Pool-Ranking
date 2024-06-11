@@ -4,6 +4,8 @@ import { BrowserRouter, Routes, Route } from 'react-router-dom'
 import Leaderboard from './components/Leaderboard';
 import SiteHeader from './components/SiteHeader';
 import HomePage from './components/HomePage';
+import Footer from './components/Footer';
+import Team from './components/Team';
 
 function App() {
   return (
@@ -25,8 +27,13 @@ function App() {
             }>
 
           </Route>
+
+          <Route path="/team" element={<Team />}>
+
+          </Route>
         </Routes>
       </BrowserRouter>
+      <Footer />
     </div>
   );
 }
