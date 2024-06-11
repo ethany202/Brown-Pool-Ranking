@@ -64,6 +64,13 @@
     line-height: 2.5em;
 }
 
+.meeting-map {
+    text-align: center;
+
+    border: 0;
+    margin: 2vw;
+}
+
 .player-signup {
     background-color: #C00404;
     /* font-family: 'Open Sans', sans-serif; */

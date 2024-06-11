@@ -44,10 +44,12 @@ export default function HomePage() {
                     About the Club
                 </h4>
                 <p className="club-logistics-paragraphs">
-                    The Brown Pool Club welcomes Brown and RISD students of any experience to come play pool. Club meetings take place at Faunce House
-                    on Fridays, from 8:00 pm to 10:00 pm. We hope to see you here! For any questions, contact: <a href="mailto:ethan.ye0312@gmail.com">ethan.ye0312@gmail.com</a>
-
+                    The Brown Pool Club welcomes Brown and RISD students of any experience to come play pool. Club meetings take place at <a href="https://maps.app.goo.gl/y7wuYf2owHUwz9619">Faunce House </a>
+                    on Fridays, from 8:00 pm to 10:00 pm. We hope to see you here!
                 </p>
+                <div className="meeting-map">
+                    <iframe src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d2973.066063059585!2d-71.4055066248355!3d41.82687556862119!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x89e4453cdf566e05%3A0x31af308579278cf4!2sFaunce%20House%2C%2075%20Waterman%20St%2C%20Providence%2C%20RI%2002912!5e0!3m2!1sen!2sus!4v1718081379478!5m2!1sen!2sus" width="500" height="400" allowFullScreen="" loading="lazy" referrerPolicy="no-referrer-when-downgrade"></iframe>
+                </div>
 
             </div>
             <div className="player-signup">
