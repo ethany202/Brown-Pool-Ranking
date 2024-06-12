@@ -6,35 +6,25 @@ import SiteHeader from './components/SiteHeader';
 import HomePage from './components/HomePage';
 import Footer from './components/Footer';
 import Team from './components/Team';
+import Register from './components/Register';
 
 function App() {
   return (
     <div className="wrapper">
       <SiteHeader />
+
       <BrowserRouter>
         <Routes>
-          <Route path="/home" element=
-            {
-              <HomePage />
-            }>
-          </Route>
-          <Route path="/leaderboard" element=
-            {
-              <>
-                <Leaderboard />
-              </>
+          <Route path="home" element={<HomePage />} />
+          <Route path="leaderboard" element={<Leaderboard />} />
+          <Route path="team" element={<Team />} />
 
-            }>
-
-          </Route>
-
-          <Route path="/team" element={<Team />}>
-
-          </Route>
+          <Route path="new-member" element={<Register />} />
         </Routes>
       </BrowserRouter>
+
       <Footer />
-    </div>
+    </div >
   );
 }
 

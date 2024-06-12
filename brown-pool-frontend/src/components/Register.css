@@ -1,0 +1,56 @@
+.register-body {
+    display: block;
+
+    text-align: center;
+    font-family: "Space Grotesk", sans-serif;
+
+    margin-top: 5vw;
+    padding-bottom: 5vw;
+
+    background-color: beige;
+    color: #C00404;
+
+    border: #C00404 0.1vw solid;
+}
+
+.register-input {
+    margin: 1vw;
+    padding: 0.9vw;
+    padding-right: 5vw;
+
+    font-size: 1.25vw;
+    font-family: "Space Grotesk", sans-serif;
+
+    letter-spacing: 0.05vw;
+
+    transition: none;
+
+    border: black solid 0.05vw;
+    border-radius: 0.5em;
+}
+
+.register-button {
+    border: none;
+    border-radius: 0.5em;
+
+    font-family: "Space Grotesk", sans-serif;
+    /* font-weight: bold; */
+    font-weight: 600;
+    font-size: 1vw;
+
+    letter-spacing: 0.05vw;
+    text-transform: uppercase;
+
+    margin-top: 2vw;
+    padding: 0.75% 1.25%;
+
+    background-color: #C00404;
+    color: white;
+
+}
+
+.register-button:hover {
+    background-color: white;
+    color: #C00404;
+    cursor: pointer;
+}

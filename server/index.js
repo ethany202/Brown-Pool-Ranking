@@ -8,7 +8,6 @@ require('dotenv').config()
 
 const app = express();
 var pool = require('./connection.js');
-//const mysql = require('mysql2');
 const clubEmail = "brownpoolclubtest@gmail.com";
 
 // Helper functions...
@@ -47,6 +46,7 @@ function executeQuery(query, callback) {
 }
 
 function storeToken(email, userName, token) {
+    // Edit ==> only store token if user NOT in DB already (execute SELECT stmt on connection)
     try {
         let deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
         let updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
@@ -88,6 +88,7 @@ function sendConfirmationEmail(email, userName) {
 
 function addMember(email, token) {
     try {
+        // Change to SELECT email ==> for efficiency
         let selectQuery = `SELECT * FROM user_tokens WHERE email = '${email}'`;
 
         executeQuery(selectQuery, (results) => {
