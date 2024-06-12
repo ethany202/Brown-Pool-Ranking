@@ -14,6 +14,8 @@
     text-align: center;
     font-size: 5.5vw;
     color: black;
+
+    animation: fadeIn 2s;
 }
 
 .coach-results {
@@ -66,6 +68,8 @@
     align-items: center;
     justify-content: center;
     text-align: center;
+
+    animation: fadeIn 2s;
 }
 
 /* .individual-coach:hover {
@@ -84,4 +88,15 @@
 
 .coach-rating {
     font-size: 1.35vw;
+}
+
+
+@keyframes fadeIn {
+    0% {
+        opacity: 0;
+    }
+
+    100% {
+        opacity: 1;
+    }
 }
