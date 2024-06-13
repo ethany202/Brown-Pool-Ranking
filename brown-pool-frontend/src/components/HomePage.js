@@ -60,7 +60,7 @@ export default function HomePage() {
                     Want to compete and see how you rank among your peers? The Brown Pool Club provides a point-based rating system, where members compete to gain points and climb the leaderboard (points reset each school semester). Join the competition by filling out the following form (only Brown and RISD students can participate).
                 </p>
                 <form className="join-form" onSubmit={sendJoinRequest}>
-                    <input className="email-input" type="text" placeholder="Email (@brown.edu)" onChange={(event) => setEmail(event.target.value)} />
+                    <input className="email-input" type="text" placeholder="Email (@brown.edu/@risd.edu)" onChange={(event) => setEmail(event.target.value)} />
                     <br></br>
                     <input className="email-input" type="text" placeholder="Name" onChange={(event) => setName(event.target.value)} />
                     <br></br>

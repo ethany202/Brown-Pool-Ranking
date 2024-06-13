@@ -10,6 +10,9 @@ const app = express();
 var pool = require('./connection.js');
 const clubEmail = "brownpoolclubtest@gmail.com";
 
+const brownRegex = new RegExp(".+@brown.edu")
+const risdRegex = new RegExp(".+@risd.edu")
+
 // Helper functions...
 var transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
@@ -48,13 +51,19 @@ function executeQuery(query, callback) {
 function storeToken(email, userName, token) {
     // Edit ==> only store token if user NOT in DB already (execute SELECT stmt on connection)
     try {
-        let deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
-        let updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
+        let selectQuery = `SELECT email FROM player_ranks WHERE email = '${email}'`
 
-        console.log(updateQuery);
+        executeQuery(selectQuery, (results) => {
+            if (results.length == 0) {
+                let deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
+                let updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
 
-        executeQuery(deleteQuery, console.log)
-        executeQuery(updateQuery, console.log)
+                executeQuery(deleteQuery, console.log)
+                executeQuery(updateQuery, console.log)
+
+                sendConfirmationEmail(email, userName, token)
+            }
+        })
     }
 
     catch (error) {
@@ -62,11 +71,7 @@ function storeToken(email, userName, token) {
     }
 }
 
-function sendConfirmationEmail(email, userName) {
-    let confirmID = Math.floor((Math.random() * 201)) - 100;    // range of -100 to 100
-
-    storeToken(email, userName, confirmID)
-
+function sendConfirmationEmail(email, userName, confirmID) {
     let confirmLink = "http://" + process.env.APP_HOST + "/new-member?email=" + email + "&id=" + confirmID;
     let mailOptions = {
         from: clubEmail,
@@ -86,21 +91,23 @@ function sendConfirmationEmail(email, userName) {
 }
 
 
-function addMember(email, token) {
+function addMember(email, password, token) {
     try {
         // Change to SELECT email ==> for efficiency
         let selectQuery = `SELECT * FROM user_tokens WHERE email = '${email}'`;
 
         executeQuery(selectQuery, (results) => {
-            console.log(results)
             if (results[0].token == token) {
-                console.log("ADDING PLAYER NOWWWWW")
 
                 let insertRank = `INSERT INTO player_ranks(name, played, points, email) VALUES ('${results[0].name}', 0, 0, '${email}')`
                 let removeToken = `DELETE FROM user_tokens WHERE email = '${email}'`
 
+                let insertCreds = `INSERT INTO player_creds VALUES ('${email}', '${password}')`
+
                 executeQuery(insertRank, console.log)
                 executeQuery(removeToken, console.log)
+
+                executeQuery(insertCreds, console.log)
             }
         })
     }
@@ -116,16 +123,13 @@ app.use(express.static(path.join(__dirname, '..', 'brown-pool-frontend', 'build'
 
 
 app.post("/join", (req, res) => {
-    console.log("New Member Join")
-    console.log(req.body.email)
+    let confirmID = Math.floor((Math.random() * 201)) - 100;    // range of -100 to 100
 
-    const emailRegex = new RegExp(".+@brown.edu")
     email = req.body.email
     userName = req.body.name;
 
-    console.log(emailRegex.test(email))
-    if (emailRegex.test(email)) {
-        sendConfirmationEmail(email, userName)
+    if (brownRegex.test(email) || risdRegex.test(email)) {
+        storeToken(email, userName, confirmID)
     }
 })
 
@@ -148,20 +152,17 @@ app.post("/leaderboard", (req, res) => {
 
 
 // POST request to add new member to rating ladder.
-app.get("/new-member", (req, res) => {
-    console.log("NEW USER ADDED TO DATABASE");
-    let email = req.query.email;
-    let token = req.query.id;
+app.post("/new-member", (req, res) => {
+    let email = req.body.email;
+    let password = req.body.password;
+    let token = req.body.id;
 
-    console.log(token)
-
-    addMember(email, token)
+    addMember(email, password, token)
 
     res.json({ "email": email })
 })
 
 app.get('*', (req, res) => {
-    //console.log(path.join(__dirname, '..', 'brown-pool-frontend', 'index.html'))
     res.sendFile(path.join(__dirname, '..', 'brown-pool-frontend', 'build/index.html'))
 })
 
