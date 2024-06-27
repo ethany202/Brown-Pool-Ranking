@@ -6,9 +6,6 @@
     padding-bottom: 12.5rem;
 
     font-family: "Space Grotesk", sans-serif;
-
-
-    /* margin-bottom: 12.5vw; */
 }
 
 .footer-titles {
@@ -18,12 +15,12 @@
 
 .contact-us-section {
     float: left;
-    margin-left: 10rem;
+    margin-left: 15rem;
 }
 
 .social-media-section {
     float: right;
-    margin-right: 10rem;
+    margin-right: 15rem;
 }
 
 .social-media-icons {
