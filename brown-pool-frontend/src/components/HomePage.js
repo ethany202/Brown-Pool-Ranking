@@ -1,6 +1,7 @@
 import React from 'react'
 import "./HomePage.css"
 import { useState, useEffect } from 'react'
+import { joinLeaderboard } from '../api/api'
 
 export default function HomePage() {
 
@@ -9,22 +10,14 @@ export default function HomePage() {
 
     const sendJoinRequest = (event) => {
         event.preventDefault();
-        console.log(email)
 
-        // Replace with POST request to server ==> server handles request by sending email
-        fetch('join', {
-            method: 'POST',
-            body: JSON.stringify({
-                email: email,
-                name: name
-            }),
-            headers: {
-                'Content-type': 'application/json; charset=UTF-8'
-            }
-        })
-            .catch(err => console.log(err))
-
-        alert("An email has been sent for confirmation.")
+        try {
+            joinLeaderboard(email, name)
+            alert("An email has been sent for confirmation.")
+        }
+        catch (error) {
+            console.log(error)
+        }
     }
 
     useEffect(() => {

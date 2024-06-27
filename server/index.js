@@ -13,7 +13,6 @@ const clubEmail = "brownpoolclubtest@gmail.com";
 const brownRegex = new RegExp(".+@brown.edu")
 const risdRegex = new RegExp(".+@risd.edu")
 
-// Helper functions...
 var transporter = nodemailer.createTransport({
     host: 'smtp.gmail.com',
     port: 587,
@@ -49,7 +48,6 @@ function executeQuery(query, callback) {
 }
 
 function storeToken(email, userName, token) {
-    // Edit ==> only store token if user NOT in DB already (execute SELECT stmt on connection)
     try {
         let selectQuery = `SELECT email FROM player_ranks WHERE email = '${email}'`
 
@@ -77,7 +75,6 @@ function sendConfirmationEmail(email, userName, confirmID) {
         from: clubEmail,
         to: email,
         subject: '[Brown Pool Club] Email Confirmation',
-        // text: 'Confirm your email: '
         html: "<h2>Hi " + userName + ",</h2><p>Confirm your email with the link to join Brown Pool Club's competitive ladder: <a href=" + confirmLink + "> Email Confirmation </a> </p>"
     };
 
@@ -129,15 +126,13 @@ app.post("/join", (req, res) => {
     userName = req.body.name;
 
     if (brownRegex.test(email) || risdRegex.test(email)) {
+        console.log("Adding User...")
         storeToken(email, userName, confirmID)
     }
 })
 
 // POST request to "/leaderboard"
 app.post("/leaderboard", (req, res) => {
-    // res.json({
-    //     list: [{ user_id: 202, name: "Ethan Ye", played: 0, points: 0, email: "ethan_ye@brown.edu" }]
-    // })
     try {
         let selectQuery = "SELECT * FROM player_ranks ORDER BY points"
 

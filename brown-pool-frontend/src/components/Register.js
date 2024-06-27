@@ -1,12 +1,12 @@
 import React from "react";
 
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { useSearchParams } from "react-router-dom";
+import { registerUser } from "../api/api";
 
 import './Register.css'
 
 export default function Register() {
-    // useState Variables
     const [password, setPassword] = useState('')
     const [confirmPass, setConfirmPass] = useState('')
     const [warnMsg, setWarnMsg] = useState('')
@@ -15,8 +15,6 @@ export default function Register() {
 
     const email = searchParams.get("email")
     const token = searchParams.get("id")
-
-    // Other Variables:
 
     const h2Style = {
         fontSize: '5vw',
@@ -29,7 +27,6 @@ export default function Register() {
 
     const h4Style = {
         fontSize: '1.75vw',
-        // color: '#B2BEB5',
         color: 'black',
         fontWeight: '350',
     }
@@ -39,34 +36,25 @@ export default function Register() {
         color: 'red'
     }
 
+    async function registerPost(email, password, token) {
+        try {
+            const response = await registerUser(email, password, token)
+            window.location.href = "/home"
+        }
+        catch (error) {
+            console.log(error)
+        }
+    }
+
     const submitUser = (event) => {
         event.preventDefault()
 
-        console.log(email)
-        console.log("Pass: " + password);
-        console.log("Confirm pass: " + confirmPass);
-
         if (password == confirmPass) {
-            fetch("new-member", {
-                method: "POST",
-                body: JSON.stringify({
-                    email: email,
-                    password: password,
-                    id: token
-                }),
-                headers: {
-                    'Content-type': 'application/json; charset=UTF-8'
-                }
-            })
-                .then(response => window.location.href = "/home")
-                .catch(err => console.log(err))
+            registerPost(email, password, token)
         }
         else {
             setWarnMsg("Passwords do not match!")
         }
-
-        // Send POST request to /new-member
-        // If successful ==> close current page
     }
 
     return (
@@ -86,8 +74,6 @@ export default function Register() {
                             <br></br>
                         </div>
                     }
-
-                    {/* Add element here to display when messages are NOT equal */}
                     <button className="register-button" type='submit'>Confirm</button>
                 </form>
             </div>

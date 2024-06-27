@@ -1,25 +1,21 @@
 import React from 'react';
 import './LeaderboardStyles.css'
 import { useState, useEffect } from 'react'
+import { getLeaderboard } from '../api/api';
 
 export default function Leaderboard() {
-    // Empty list of JSON objects; each JSON corresponds to a member
     const [playerRanks, setPlayerRanks] = useState({ list: [] })
     let currentPosition = 0;
 
+    async function fetchLeaderboard() {
+        const leaderboards = await getLeaderboard()
+        setPlayerRanks(leaderboards)
+    }
+
     useEffect(() => {
         document.title = 'Leaderboard | Brown Pool Club'
-
-        //fetch() is a built-in JavaScript function responsible for making fetches (get/post/ other requests)
-        fetch('leaderboard', {
-            method: 'POST'
-        })
-            .then(response => response.json())
-            .then(data => setPlayerRanks(data))
-            .catch(err => console.log(err))
+        fetchLeaderboard()
     }, [])
-
-    console.log(playerRanks)
 
     return (
         <div className="leaderboard-div">
@@ -53,24 +49,9 @@ export default function Leaderboard() {
                                 })
                             )
                         }
-
-                        {/* <tr className="member-rows">
-                            <td>1</td>
-                            <td>Alfie Clive</td>
-                            <td>104</td>
-                            <td>95</td>
-                        </tr>
-                        <tr className="member-rows">
-                            <td>1</td>
-                            <td>Alfie Clive</td>
-                            <td>104</td>
-                            <td>95</td>
-                        </tr> */}
                     </tbody>
-
                 </table>
             </div>
-
         </div>
 
     );
