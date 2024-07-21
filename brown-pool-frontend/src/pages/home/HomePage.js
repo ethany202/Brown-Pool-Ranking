@@ -1,7 +1,7 @@
 import React from 'react'
 import "./HomePage.css"
 import { useState, useEffect } from 'react'
-import { joinLeaderboard } from '../api/api'
+import { joinLeaderboard } from '../../api/api.js'
 
 export default function HomePage() {
 

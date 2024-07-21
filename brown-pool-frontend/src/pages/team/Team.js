@@ -1,5 +1,5 @@
 import React from "react";
-import AnonProfile from '../assets/AnonProfile.png'
+import AnonProfile from '../../assets/AnonProfile.png'
 import './Team.css'
 
 

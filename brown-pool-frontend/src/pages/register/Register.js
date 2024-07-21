@@ -2,7 +2,7 @@ import React from "react";
 
 import { useState } from 'react';
 import { useSearchParams } from "react-router-dom";
-import { registerUser } from "../api/api";
+import { registerUser } from "../../api/api.js";
 
 import './Register.css'
 
@@ -15,26 +15,6 @@ export default function Register() {
 
     const email = searchParams.get("email")
     const token = searchParams.get("id")
-
-    const h2Style = {
-        fontSize: '5vw',
-        margin: '5vw',
-    }
-
-    const boldFont = {
-        fontWeight: 'bold'
-    }
-
-    const h4Style = {
-        fontSize: '1.75vw',
-        color: 'black',
-        fontWeight: '350',
-    }
-
-    const errMsg = {
-        fontSize: '1.35vw',
-        color: 'red'
-    }
 
     async function registerPost(email, password, token) {
         try {
@@ -59,10 +39,26 @@ export default function Register() {
 
     return (
         <div className="register-body">
-            <h2 style={h2Style}>Student Register</h2>
+            <h2 style={{
+                fontSize: '5vw',
+                margin: '5vw',
+            }}>
+                Student Register
+            </h2>
             <div className="input-body">
                 <form className="register-form" onSubmit={submitUser}>
-                    <h4 style={h4Style} className="email-loc">Email: <span style={boldFont}> {email}</span> </h4>
+                    <h4 style={{
+                        fontSize: '1.75vw',
+                        color: 'black',
+                        fontWeight: '350',
+                    }} className="email-loc">
+                        Email:
+                        <span style={{
+                            fontWeight: 'bold'
+                        }}>
+                            {email}
+                        </span>
+                    </h4>
                     <input className="register-input" type="password" placeholder="Password" onChange={(event) => setPassword(event.target.value)}></input>
                     <br></br>
                     <input className="register-input" type="password" placeholder="Confirm Password" onChange={(event) => setConfirmPass(event.target.value)}></input>
@@ -70,7 +66,10 @@ export default function Register() {
                     {
                         warnMsg &&
                         <div>
-                            <div style={errMsg}>{warnMsg}</div>
+                            <div style={{
+                                fontSize: '1.35vw',
+                                color: 'red'
+                            }}>{warnMsg}</div>
                             <br></br>
                         </div>
                     }

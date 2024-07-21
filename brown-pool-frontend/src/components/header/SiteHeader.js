@@ -1,7 +1,6 @@
 import React from 'react'
-import logo from '../assets/BrownLogo.png'
+import logo from '../../assets/BrownLogo.png'
 import './SiteHeader.css'
-import cueSticks from '../assets/BilliardsDesign.png'
 
 
 export default function SiteHeader() {

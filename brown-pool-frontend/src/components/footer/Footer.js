@@ -1,7 +1,7 @@
 import React from "react";
-import instaIcon from '../assets/InstagramIcon.svg'
-import facebookIcon from '../assets/FacebookIcon.svg'
-import ytIcon from '../assets/YouTubeIcon.svg'
+import instaIcon from '../../assets/InstagramIcon.svg'
+import facebookIcon from '../../assets/FacebookIcon.svg'
+import ytIcon from '../../assets/YouTubeIcon.svg'
 import './Footer.css'
 
 

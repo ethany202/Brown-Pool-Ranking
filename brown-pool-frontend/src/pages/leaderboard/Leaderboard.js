@@ -1,11 +1,10 @@
 import React from 'react';
-import './LeaderboardStyles.css'
+import './Leaderboard.css'
 import { useState, useEffect } from 'react'
-import { getLeaderboard } from '../api/api';
+import { getLeaderboard } from '../../api/api.js';
 
 export default function Leaderboard() {
     const [playerRanks, setPlayerRanks] = useState({ list: [] })
-    let currentPosition = 0;
 
     async function fetchLeaderboard() {
         const leaderboards = await getLeaderboard()
@@ -36,11 +35,11 @@ export default function Leaderboard() {
                         {
                             playerRanks.list && (
                                 // the currentMember is a JSON item
-                                playerRanks.list.map((currentMember) => {
-                                    currentPosition += 1;
+                                playerRanks.list.map((currentMember, index) => {
+                                    const position = index + 1
                                     return (
                                         <tr className="member-rows" key={currentMember.user_id}>
-                                            <td>{currentPosition}</td>
+                                            <td>{position}</td>
                                             <td>{currentMember.name}</td>
                                             <td>{currentMember.played}</td>
                                             <td>{currentMember.points}</td>
