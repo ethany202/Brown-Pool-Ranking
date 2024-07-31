@@ -36,10 +36,9 @@ export default function Leaderboard() {
                             playerRanks.list && (
                                 // the currentMember is a JSON item
                                 playerRanks.list.map((currentMember, index) => {
-                                    const position = index + 1
                                     return (
-                                        <tr className="member-rows" key={currentMember.user_id}>
-                                            <td>{position}</td>
+                                        <tr className="member-rows" key={currentMember.rank_number}>
+                                            <td>{currentMember.rank_number}</td>
                                             <td>{currentMember.name}</td>
                                             <td>{currentMember.played}</td>
                                             <td>{currentMember.points}</td>

@@ -1,90 +1,47 @@
 
 require('dotenv').config()
 const express = require("express");
-const nodemailer = require('nodemailer')
+const bcrypt = require('bcrypt');
+const path = require('path');
 const executeQuery = require('./src/services/connection');
-const path = require('path')
+const sendConfirmationEmail = require('./src/services/email-sender');
 
 const app = express();
-const clubEmail = "brownpoolclubtest@gmail.com";
 const brownRegex = new RegExp(".+@brown.edu")
 const risdRegex = new RegExp(".+@risd.edu")
 
-var transporter = nodemailer.createTransport({
-    host: 'smtp.gmail.com',
-    port: 587,
-    service: 'gmail',
-    auth: {
-        user: clubEmail,
-        pass: process.env.EMAIL_PASS
-    },
-});
-
-
 function storeToken(email, userName, token) {
-    try {
-        const selectQuery = `SELECT email FROM player_ranks WHERE email = '${email}'`
+    const selectQuery = `SELECT email FROM player_ranks WHERE email = '${email}'`
 
-        executeQuery(selectQuery, (results) => {
-            if (results.length == 0) {
-                const deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
-                const updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
+    executeQuery(selectQuery, (results) => {
+        if (results.length == 0) {
+            const deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
+            const updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
 
-                executeQuery(deleteQuery, console.log)
-                executeQuery(updateQuery, console.log)
+            executeQuery(deleteQuery, console.log)
+            executeQuery(updateQuery, console.log)
 
-                sendConfirmationEmail(email, userName, token)
-            }
-        })
-    }
-
-    catch (error) {
-        console.log(error)
-    }
-}
-
-function sendConfirmationEmail(email, userName, confirmID) {
-    const confirmLink = "http://" + process.env.APP_HOST + "/new-member?email=" + email + "&id=" + confirmID;
-    let mailOptions = {
-        from: clubEmail,
-        to: email,
-        subject: '[Brown Pool Club] Email Confirmation',
-        html: "<h2>Hi " + userName + ",</h2><p>Confirm your email with the link to join Brown Pool Club's competitive ladder: <a href=" + confirmLink + "> Email Confirmation </a> </p>"
-    };
-
-    transporter.sendMail(mailOptions, function (error, info) {
-        if (error) {
-            console.log(error);
-        } else {
-            console.log('Email sent: ' + info.response);
+            sendConfirmationEmail(email, userName, token)
         }
-    });
+    })
 }
-
 
 function addMember(email, password, token) {
-    try {
-        // Change to SELECT email ==> for efficiency
-        const selectQuery = `SELECT * FROM user_tokens WHERE email = '${email}'`;
+    const selectQuery = `SELECT * FROM user_tokens WHERE email = '${email}'`
 
-        executeQuery(selectQuery, (results) => {
-            if (results[0].token == token) {
+    executeQuery(selectQuery, async (results) => {
+        if (results[0].token == token) {
+            //const hashedPassword = await bcrypt.hash(password, 10)
 
-                const insertRank = `INSERT INTO player_ranks(name, played, points, email) VALUES ('${results[0].name}', 0, 0, '${email}')`
-                const removeToken = `DELETE FROM user_tokens WHERE email = '${email}'`
+            const insertCreds = `INSERT INTO player_creds(email, password, name) VALUES ('${email}', '${password}', '${results[0].name}')`
+            const insertRank = `INSERT INTO player_ranks VALUES ('${email}', 0, 0)`
+            const removeToken = `DELETE FROM user_tokens WHERE email = '${email}'`
 
-                const insertCreds = `INSERT INTO player_creds VALUES ('${email}', '${password}')`
-
-                executeQuery(insertRank, console.log)
-                executeQuery(removeToken, console.log)
-
-                executeQuery(insertCreds, console.log)
-            }
-        })
-    }
-    catch (error) {
-        console.log(error)
-    }
+            executeQuery(insertRank, console.log)
+            executeQuery(removeToken, console.log)
+            executeQuery(insertCreds, console.log)
+        }
+    })
 }
 
 // Adds in built-in middleware: middleware parses incoming JSON requests and puts parsed data into "req.body"
@@ -93,136 +50,99 @@ app.use(express.static(path.join(__dirname, '..', 'brown-pool-frontend', 'build'
 
 // Routing:
 app.post("/join", (req, res) => {
-    const confirmID = Math.floor((Math.random() * 201)) - 100;    // range of -100 to 100
-    const email = req.body.email
-    const userName = req.body.name;
+    try {
+        const confirmID = Math.floor((Math.random() * 201)) - 100;    // range of -100 to 100
+        const email = req.body.email
+        const userName = req.body.name;
 
-    if (brownRegex.test(email) || risdRegex.test(email)) {
-        storeToken(email, userName, confirmID)
+        if (brownRegex.test(email) || risdRegex.test(email)) {
+            storeToken(email, userName, confirmID)
+        }
     }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ 'error': err })
+    }
+
 })
 
 // POST request to "/leaderboard"
 app.post("/leaderboard", (req, res) => {
     try {
-        const selectQuery = "SELECT * , ROW_NUMBER() OVER ( ORDER BY points DESC) AS rank_number FROM player_ranks"
+        const selectQuery = `
+            SELECT player_creds.email, player_creds.name, player_ranks.played, player_ranks.points,
+            ROW_NUMBER() OVER (ORDER BY player_ranks.points DESC) AS rank_number
+            FROM player_ranks
+            LEFT JOIN player_creds
+            ON player_ranks.email = player_creds.email
+        `
 
         executeQuery(selectQuery, (results) => {
             res.json({ list: results })
         })
-        // res.json({
-        //     list: [
-        //         {
-        //             "email": "ethan_ye@brown.edu",
-        //             "name": "Ethan Ye", "played": 0,
-        //             "points": 0,
-        //             "rank_number": 1,
-        //             "user_id": 1
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 2,
-        //             "user_id": 2
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 3,
-        //             "user_id": 3
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 4,
-        //             "user_id": 4
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 5,
-        //             "user_id": 5
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 6,
-        //             "user_id": 6
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 7,
-        //             "user_id": 7
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 8,
-        //             "user_id": 8
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 9,
-        //             "user_id": 9
-        //         },
-        //         {
-        //             "email": "ben_woods@penn.edu",
-        //             "name": "Ben Woods",
-        //             "played": 0,
-        //             "points": 0,
-        //             "rank_number": 10,
-        //             "user_id": 10
-        //         },
-        //     ]
-        // })
     }
     catch (error) {
         console.log(error)
+        res.json({ list: [] })
     }
 });
 
 // POST request to add new member to rating ladder.
 app.post("/new-member", (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    const token = req.body.id;
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        const token = req.body.id;
 
-    addMember(email, password, token)
-    res.json({ "email": email })
+        addMember(email, password, token)
+        res.status(200).json({ "email": email })
+    }
+    catch (error) {
+        console.log(err)
+        res.status(500).json({})
+    }
 })
 
 // POST request to check if a user login is valid
 app.post("/login", (req, res) => {
-    const email = req.body.email;
-    const password = req.body.password;
-    const selectQuery = `SELECT email FROM player_creds WHERE email = '${email}' AND password = '${password}'`
+    try {
+        const email = req.body.email;
+        const password = req.body.password;
+        const selectQuery = `SELECT * FROM player_creds WHERE email = '${email}' and password = '${password}'`
 
-    executeQuery(selectQuery, (results) => {
-        if (results.length == 1) {
-            res.json({ email: email })
-        }
-        else {
-            res.json({})
-        }
-    })
+        executeQuery(selectQuery, async (results) => {
+            if (results.length == 1) {
+                // const passwordMatch = await bcrypt.compare(password, results[0].password);
+                // if (passwordMatch) {
+                //     return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name })
+                // }
+                return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name })
+
+            }
+            return res.status(500).json({})
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({})
+    }
+})
+
+// POST request to obtain match history
+app.post('/match-history', (req, res) => {
+    try {
+        const userID = req.body.userID
+
+        const selectQuery = `SELECT * FROM match_history WHERE player_one_id=${userID} OR player_two_id=${userID}`
+        executeQuery(selectQuery, (results) => {
+            console.log(results)
+            res.status(200).json({ list: results })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ list: [] })
+    }
 })
 
 app.get('*', (req, res) => {
