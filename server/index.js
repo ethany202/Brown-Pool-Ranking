@@ -145,6 +145,120 @@ app.post('/match-history', (req, res) => {
     }
 })
 
+// POST request to obtain match requests
+app.post('/match-requests', (req, res) => {
+    try {
+        const userID = req.body.userID
+
+        const selectQuery = `
+            SELECT * FROM ongoing_matches 
+            WHERE (player_one_id = ${userID} AND NOT player_one_accepted)
+            OR (player_two_id = ${userID} AND NOT player_two_accepted)
+        `
+
+        executeQuery(selectQuery, (results) => {
+            res.status(200).json({ list: results })
+        })
+
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ list: [] })
+    }
+})
+
+// POST request to accept match request
+app.post('/accept-match', (req, res) => {
+    try {
+        const matchID = req.body.matchID
+
+        const updateMatchStatus = `
+            UPDATE ongoing_matches
+            SET player_two_accepted = true
+            WHERE match_id = ${matchID}
+        `
+
+        executeQuery(updateMatchStatus, (results) => {
+            res.status(200).json({ message: 'match accepted' })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'error accepting match' })
+    }
+})
+
+// POST request to decline match request
+app.post('/decline-match', (req, res) => {
+    try {
+        const matchID = req.body.matchID
+
+        const deleteMatchStatus = `
+            DELETE FROM ongoing_matches
+            WHERE match_id = ${matchID}
+        `
+
+        executeQuery(deleteMatchStatus, (results) => {
+            res.status(200).json({ message: 'match declined' })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: 'error with declining match' })
+    }
+})
+
+// POST request to set match result
+app.post('/send-match-result', (req, res) => {
+    try {
+        const userID = req.body.userID
+        const matchID = req.body.matchID
+        const winnerID = req.body.winnerID
+
+        //const getOngoingMatches
+    }
+    catch (err) {
+
+    }
+})
+
+
+// POST request for user profile data
+app.post('/profile-data', (req, res) => {
+    try {
+        let responseJSON = {}
+        const email = req.body.email
+        const userID = req.body.userID
+
+        const rankQuery = `
+            SELECT played, points, 
+            ROW_NUMBER() OVER (ORDER BY points DESC) AS rank_number
+            FROM player_ranks 
+            WHERE email = '${email}'
+        `
+        const matchesWonQuery = `SELECT match_id FROM match_history WHERE winner_id = ${userID}`
+        const allMatchesQuery = `SELECT match_id FROM match_history WHERE player_one_id = ${userID} OR player_two_id = ${userID}`
+
+        executeQuery(rankQuery, (results) => {
+            if (results.length == 1) {
+                responseJSON['currentRank'] = results[0].rank_number
+                responseJSON['points'] = results[0].points
+            }
+            executeQuery(matchesWonQuery, (results) => {
+                responseJSON['matchesWon'] = results.length
+                executeQuery(allMatchesQuery, (results) => {
+                    responseJSON['matchesLost'] = results.length - responseJSON['matchesWon']
+                    res.status(200).json(responseJSON)
+                })
+            })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({})
+    }
+})
+
 app.get('*', (req, res) => {
     res.sendFile(path.join(__dirname, '..', 'brown-pool-frontend', 'build/index.html'))
 })
