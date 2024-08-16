@@ -69,15 +69,7 @@ app.post("/join", (req, res) => {
 // POST request to "/leaderboard"
 app.post("/leaderboard", (req, res) => {
     try {
-        const selectQuery = `
-            SELECT player_creds.email, player_creds.name, player_ranks.played, player_ranks.points,
-            ROW_NUMBER() OVER (ORDER BY player_ranks.points DESC) AS rank_number
-            FROM player_ranks
-            LEFT JOIN player_creds
-            ON player_ranks.email = player_creds.email
-        `
-
-        executeQuery(selectQuery, (results) => {
+        executeQuery('SELECT * FROM player_ranks_with_position', (results) => {
             res.json({ list: results })
         })
     }
@@ -128,11 +120,23 @@ app.post("/login", (req, res) => {
     }
 })
 
+// GET request to get all players
+app.get('/all-players', (req, res) => {
+    try {
+        executeQuery('SELECT email FROM player_creds', (results) => {
+            res.status(200).json({ list: results })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ list: [] })
+    }
+})
+
 // POST request to obtain match history
 app.post('/match-history', (req, res) => {
     try {
         const userID = req.body.userID
-
         const selectQuery = `SELECT * FROM match_history WHERE player_one_id=${userID} OR player_two_id=${userID}`
         executeQuery(selectQuery, (results) => {
             console.log(results)
@@ -149,11 +153,17 @@ app.post('/match-history', (req, res) => {
 app.post('/match-requests', (req, res) => {
     try {
         const userID = req.body.userID
-
         const selectQuery = `
-            SELECT * FROM ongoing_matches 
-            WHERE (player_one_id = ${userID} AND NOT player_one_accepted)
-            OR (player_two_id = ${userID} AND NOT player_two_accepted)
+            SELECT 
+                ongoing_matches.match_id, 
+                player_creds.name AS opponent, 
+                player_ranks_with_position.rank_number as opponent_rank 
+            FROM ongoing_matches 
+            LEFT JOIN player_creds
+            ON ongoing_matches.player_one_id = player_creds.user_id
+            LEFT JOIN player_ranks_with_position
+            ON player_creds.email = player_ranks_with_position.email
+            WHERE (player_two_id = ${userID} AND player_two_accepted IS NULL)
         `
 
         executeQuery(selectQuery, (results) => {
@@ -167,8 +177,37 @@ app.post('/match-requests', (req, res) => {
     }
 })
 
+// POST request to obtain ONGOING matches
+app.post('/ongoing-matches', (req, res) => {
+    try {
+        const userID = req.body.userID
+        const selectQuery = `
+            SELECT 
+                ongoing_matches.match_id, 
+                player_creds.name AS opponent, 
+                player_ranks_with_position.rank_number as opponent_rank ,
+                true as is_ongoing_match
+            FROM ongoing_matches 
+            LEFT JOIN player_creds
+            ON ongoing_matches.player_one_id = player_creds.user_id
+            LEFT JOIN player_ranks_with_position
+            ON player_creds.email = player_ranks_with_position.email
+            WHERE (player_two_id = ${userID} AND player_two_accepted IS NOT NULL)
+        `
+
+        executeQuery(selectQuery, (results) => {
+
+            res.status(200).json({ list: results })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ list: [] })
+    }
+})
+
 // POST request to accept match request
-app.post('/accept-match', (req, res) => {
+app.post('/accept-challenge', (req, res) => {
     try {
         const matchID = req.body.matchID
 
@@ -189,7 +228,7 @@ app.post('/accept-match', (req, res) => {
 })
 
 // POST request to decline match request
-app.post('/decline-match', (req, res) => {
+app.post('/decline-challenge', (req, res) => {
     try {
         const matchID = req.body.matchID
 
@@ -230,12 +269,7 @@ app.post('/profile-data', (req, res) => {
         const email = req.body.email
         const userID = req.body.userID
 
-        const rankQuery = `
-            SELECT played, points, 
-            ROW_NUMBER() OVER (ORDER BY points DESC) AS rank_number
-            FROM player_ranks 
-            WHERE email = '${email}'
-        `
+        const rankQuery = `SELECT * FROM player_ranks_with_position WHERE email = '${email}'`
         const matchesWonQuery = `SELECT match_id FROM match_history WHERE winner_id = ${userID}`
         const allMatchesQuery = `SELECT match_id FROM match_history WHERE player_one_id = ${userID} OR player_two_id = ${userID}`
 
