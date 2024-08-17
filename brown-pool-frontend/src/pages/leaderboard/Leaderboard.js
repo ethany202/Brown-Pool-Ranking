@@ -7,8 +7,10 @@ export default function Leaderboard() {
     const [playerRanks, setPlayerRanks] = useState({ list: [] })
 
     async function fetchLeaderboard() {
-        const leaderboards = await getLeaderboard()
-        setPlayerRanks(leaderboards)
+        const leaderboardResponse = await getLeaderboard()
+        if (leaderboardResponse.status === 200) {
+            setPlayerRanks(await leaderboardResponse.json())
+        }
     }
 
     useEffect(() => {

@@ -14,7 +14,7 @@ function storeToken(email, userName, token) {
     const selectQuery = `SELECT email FROM player_ranks WHERE email = '${email}'`
 
     executeQuery(selectQuery, (results) => {
-        if (results.length == 0) {
+        if (results.length === 0) {
             const deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
             const updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
 
@@ -31,7 +31,7 @@ function addMember(email, password, token) {
     const selectQuery = `SELECT * FROM user_tokens WHERE email = '${email}'`
 
     executeQuery(selectQuery, async (results) => {
-        if (results[0].token == token) {
+        if (results[0].token === token) {
             //const hashedPassword = await bcrypt.hash(password, 10)
 
             const insertCreds = `INSERT INTO player_creds(email, password, name) VALUES ('${email}', '${password}', '${results[0].name}')`
@@ -43,6 +43,98 @@ function addMember(email, password, token) {
             executeQuery(insertCreds, console.log)
         }
     })
+}
+
+function updateMatchStatus(matchID, winnerID) {
+    try {
+        const updateQuery = `
+            UPDATE ongoing_matches
+            SET winner_id = ${winnerID}
+            WHERE match_id = ${matchID}
+        `
+
+        executeQuery(updateQuery, (results) => { })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+function incrementGamesPlayed(playerOneID, playerTwoID) {
+    try {
+        const incrementQuery = `
+            UPDATE player_ranks
+            SET played = played + 1
+            WHERE user_id = ${playerOneID} OR user_id = ${playerTwoID}
+        `
+
+        executeQuery(incrementQuery, (results) => { })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+function updateLeaderboard(playerOneID, playerTwoID, winnerID, callback) {
+    try {
+        const getPlayerOnePoints = `SELECT points FROM player_ranks WHERE user_id = ${playerOneID}`
+        const getPlayerTwoPoints = `SELECT points FROM player_ranks WHERE user_id = ${playerTwoID}`
+
+        executeQuery(getPlayerOnePoints, (playerOnePts) => {
+            executeQuery(getPlayerTwoPoints, (playerTwoPts) => {
+                updateLeaderboardHelper(playerOneID, Number(playerOnePts[0].points), playerTwoID, Number(playerTwoPts[0].points), winnerID, callback)
+            })
+        })
+    }
+    catch (err) {
+        console.log(err)
+    }
+}
+
+function updateLeaderboardHelper(playerOneID, playerOnePts, playerTwoID, playerTwoPts, winnerID, callback) {
+    try {
+        const pointSum = playerOnePts + playerTwoPts
+
+        if (Number(winnerID) === Number(playerOneID)) {
+            const advantage = playerOnePts / pointSum
+            const earnedPoints = 10 * (0.5 / advantage)
+            const lostPoints = earnedPoints / 2
+
+            console.log(advantage, earnedPoints, lostPoints)
+
+            playerOnePts = Math.round(playerOnePts + earnedPoints)
+            playerTwoPts = Math.round(playerTwoPts - lostPoints)
+        }
+        else {
+            const advantage = playerTwoPts / pointSum
+            const earnedPoints = 10 * (0.5 / advantage)
+            const lostPoints = earnedPoints / 2
+
+            playerOnePts = Math.round(playerOnePts - lostPoints)
+            playerTwoPts = Math.round(playerTwoPts + earnedPoints)
+        }
+
+        const updatePlayerOne = `
+            UPDATE player_ranks
+            SET points = ${playerOnePts}
+            WHERE user_id = ${playerOneID}
+        `
+
+        const updatePlayerTwo = `
+            UPDATE player_ranks
+            SET points = ${playerTwoPts}
+            WHERE user_id = ${playerTwoID} 
+        `
+        executeQuery(updatePlayerOne, (playerOneResults) => {
+            executeQuery(updatePlayerTwo, (playerTwoResults) => {
+                callback()
+            })
+        })
+
+    }
+    catch (err) {
+        console.log(err)
+    }
 }
 
 // Adds in built-in middleware: middleware parses incoming JSON requests and puts parsed data into "req.body"
@@ -62,7 +154,7 @@ app.post("/join", (req, res) => {
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ 'error': err })
+        return res.status(500).json({ 'error': err })
     }
 
 })
@@ -88,11 +180,11 @@ app.post("/new-member", (req, res) => {
         const token = req.body.id;
 
         addMember(email, password, token)
-        res.status(200).json({ "email": email })
+        return res.status(200).json({ "email": email })
     }
     catch (error) {
         console.log(err)
-        res.status(500).json({})
+        return res.status(500).json({})
     }
 })
 
@@ -107,7 +199,7 @@ app.post("/login", (req, res) => {
                 player_creds.email,
                 player_creds.password,
                 player_creds.name,
-                player_ranks_with_position.rank_number 
+                player_ranks_with_position.rank_number,
             FROM player_creds 
             LEFT JOIN player_ranks_with_position
             ON player_ranks_with_position.email = player_creds.email
@@ -120,14 +212,16 @@ app.post("/login", (req, res) => {
                 // if (passwordMatch) {
                 //     return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name })
                 // }
-                return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name, rank_number: results[0].rank_number })
+                //                return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name, rank_number: results[0].rank_number, points: results[0].points })
+                return res.status(200).json(results[0])
+
             }
             return res.status(500).json({})
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({})
+        return res.status(500).json({})
     }
 })
 
@@ -142,12 +236,12 @@ app.post('/send-challenge', (req, res) => {
             VALUES (${userID}, true, ${opponentID}, null, null)
         `
         executeQuery(createChallenge, (results) => {
-            res.status(200).json({ message: "Challenge sent" })
+            return res.status(200).json({ message: "Challenge sent" })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ error: "Error when sending a challenge" })
+        return res.status(500).json({ error: "Error when sending a challenge" })
     }
 })
 
@@ -155,12 +249,12 @@ app.post('/send-challenge', (req, res) => {
 app.get('/all-players', (req, res) => {
     try {
         executeQuery('SELECT user_id, email FROM player_creds', (results) => {
-            res.status(200).json({ list: results })
+            return res.status(200).json({ list: results })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ list: [] })
+        return res.status(500).json({ list: [] })
     }
 })
 
@@ -194,12 +288,12 @@ app.post('/match-history', (req, res) => {
         `
 
         executeQuery(selectQuery, (results) => {
-            res.status(200).json({ list: results })
+            return res.status(200).json({ list: results })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ list: [] })
+        return res.status(500).json({ list: [] })
     }
 })
 
@@ -222,13 +316,13 @@ app.post('/match-requests', (req, res) => {
         `
 
         executeQuery(selectQuery, (results) => {
-            res.status(200).json({ list: results })
+            return res.status(200).json({ list: results })
         })
 
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ list: [] })
+        return res.status(500).json({ list: [] })
     }
 })
 
@@ -265,12 +359,12 @@ app.post('/ongoing-matches', (req, res) => {
         `
 
         executeQuery(selectQuery, (results) => {
-            res.status(200).json({ list: results })
+            return res.status(200).json({ list: results })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ list: [] })
+        return res.status(500).json({ list: [] })
     }
 })
 
@@ -286,12 +380,12 @@ app.post('/accept-challenge', (req, res) => {
         `
 
         executeQuery(updateMatchStatus, (results) => {
-            res.status(200).json({ message: 'match accepted' })
+            return res.status(200).json({ message: 'match accepted' })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ error: 'error accepting match' })
+        return res.status(500).json({ error: 'error accepting match' })
     }
 })
 
@@ -306,12 +400,12 @@ app.post('/decline-challenge', (req, res) => {
         `
 
         executeQuery(deleteMatchStatus, (results) => {
-            res.status(200).json({ message: 'match declined' })
+            return res.status(200).json({ message: 'match declined' })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({ error: 'error with declining match' })
+        return res.status(500).json({ error: 'error with declining match' })
     }
 })
 
@@ -324,11 +418,7 @@ app.post('/send-match-result', (req, res) => {
         const userRank = req.body.userRank
         const opponentRank = req.body.opponentRank
 
-        console.log(winnerID)
-
-        // Check if a player has already sent a result:
         const checkCurrentResult = `SELECT * FROM ongoing_matches WHERE match_id = ${matchID}`
-
         executeQuery(checkCurrentResult, (results) => {
             const player_one_id = results[0].player_one_id
             const player_two_id = results[0].player_two_id
@@ -336,7 +426,7 @@ app.post('/send-match-result', (req, res) => {
             var player_one_rank = 0
             var player_two_rank = 0
 
-            if (player_one_id === userID) {
+            if (Number(player_one_id) === Number(userID)) {
                 player_one_rank = userRank
                 player_two_rank = opponentRank
             }
@@ -346,61 +436,57 @@ app.post('/send-match-result', (req, res) => {
             }
 
             if (results[0].winner_id === null) {
-                const updateMatchStatus = `
-                    UPDATE ongoing_matches
-                    SET winner_id = ${winnerID}
-                    WHERE match_id = ${matchID}
-                `
-
-                return executeQuery(updateMatchStatus, (results) => {
-                    res.status(200).json({ message: "Match result recorded" })
-                })
-            }
-            else if (Number(results[0].winner_id) !== Number(winnerID)) {
-                console.log("NO MATCH...")
-
-                const deleteMatchRecord = `
-                    DELETE FROM ongoing_matches
-                    WHERE match_id = ${matchID}
-                `
-
-                return executeQuery(deleteMatchRecord, (results) => {
-                    res.status(200).json({ message: "Match result recorded" })
-                })
+                updateMatchStatus(matchID, winnerID)
             }
             else {
-                console.log(`WINNER ID MATCHES: ${winnerID}`)
+                if (Number(results[0].responder_id) !== Number(userID)
+                    && Number(results[0].winner_id) === Number(winnerID)) {
 
-                const currentDate = new Date()
-                const deleteMatchRecord = `
-                    DELETE FROM ongoing_matches
-                    WHERE match_id = ${matchID}
-                `
+                    incrementGamesPlayed(player_one_id, player_two_id)
+                    updateLeaderboard(player_one_id, player_two_id, winnerID, () => {
+                        const currentDate = new Date()
+                        const deleteMatchRecord = `
+                            DELETE FROM ongoing_matches
+                            WHERE match_id = ${matchID}
+                        `
 
-                return executeQuery(deleteMatchRecord, (results) => {
-                    const updateMatchHistory = `
-                        INSERT INTO match_history
-                        VALUES (
-                            ${matchID}, 
-                            '${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}', 
-                            ${player_one_id},
-                            ${player_one_rank},
-                            ${player_two_id},
-                            ${player_two_rank},
-                            ${winnerID}
-                        )
-                    `
+                        executeQuery(deleteMatchRecord, (results) => {
+                            const updateMatchHistory = `
+                                INSERT INTO match_history
+                                VALUES (
+                                    ${matchID}, 
+                                    '${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}', 
+                                    ${player_one_id},
+                                    ${player_one_rank},
+                                    ${player_two_id},
+                                    ${player_two_rank},
+                                    ${winnerID}
+                                )
+                            `
 
-                    executeQuery(updateMatchHistory, (results) => {
-                        res.status(200).json({ message: "Match result recorded" })
+                            executeQuery(updateMatchHistory, (results) => { })
+                        })
                     })
-                })
-            }
-        })
 
+                }
+                else if (Number(results[0].winner_id) !== Number(winnerID)) {
+                    updateMatchStatus(matchID, winnerID)
+                }
+            }
+            const updateRecorderID = `
+                UPDATE ongoing_matches
+                SET responder_id = ${userID}
+                WHERE match_id = ${matchID}
+            `
+
+            executeQuery(updateRecorderID, (results) => {
+                return res.status(200).json({ message: "Match result recorded" })
+            })
+
+        })
     }
     catch (err) {
-        res.status(500).json({ error: "error when recording match" })
+        return res.status(500).json({ error: "error when recording match" })
     }
 })
 
@@ -417,7 +503,7 @@ app.post('/profile-data', (req, res) => {
         const allMatchesQuery = `SELECT match_id FROM match_history WHERE player_one_id = ${userID} OR player_two_id = ${userID}`
 
         executeQuery(rankQuery, (results) => {
-            if (results.length == 1) {
+            if (results.length === 1) {
                 responseJSON['currentRank'] = results[0].rank_number
                 responseJSON['points'] = results[0].points
             }
@@ -425,14 +511,14 @@ app.post('/profile-data', (req, res) => {
                 responseJSON['matchesWon'] = results.length
                 executeQuery(allMatchesQuery, (results) => {
                     responseJSON['matchesLost'] = results.length - responseJSON['matchesWon']
-                    res.status(200).json(responseJSON)
+                    return res.status(200).json(responseJSON)
                 })
             })
         })
     }
     catch (err) {
         console.log(err)
-        res.status(500).json({})
+        return res.status(500).json({})
     }
 })
 

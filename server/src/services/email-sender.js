@@ -11,8 +11,8 @@ const transporter = nodemailer.createTransport({
     },
 });
 
-function sendConfirmationEmail(email, userName, confirmID) {
-    const confirmLink = `${process.env.APP_HOST}/new-member?email=${email}&id=${confirmID}`;
+function sendConfirmationEmail(email, userName, confirmToken) {
+    const confirmLink = `${process.env.APP_HOST}/new-member?email=${email}&token=${confirmToken}`;
     const mailOptions = {
         from: process.env.CLUB_EMAIL,
         to: email,

@@ -1,5 +1,5 @@
-export function joinLeaderboard(email, name) {
-    fetch('join', {
+export async function joinLeaderboard(email, name) {
+    const response = await fetch('join', {
         method: 'POST',
         body: JSON.stringify({
             email: email,
@@ -9,13 +9,16 @@ export function joinLeaderboard(email, name) {
             'Content-type': 'application/json; charset=UTF-8'
         }
     })
+
+    return response
 }
 
 export async function getLeaderboard() {
     const response = await fetch('leaderboard', {
         method: 'POST'
     })
-    return (await response.json())
+
+    return response
 }
 
 export async function registerUser(email, password, token) {
@@ -24,7 +27,7 @@ export async function registerUser(email, password, token) {
         body: JSON.stringify({
             email: email,
             password: password,
-            id: token
+            token: token
         }),
         headers: {
             'Content-type': 'application/json; charset=UTF-8'

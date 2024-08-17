@@ -14,12 +14,17 @@ export default function Register() {
     const [searchParams] = useSearchParams()
 
     const email = searchParams.get("email")
-    const token = searchParams.get("id")
+    const token = searchParams.get("token")
 
     async function registerPost(email, password, token) {
         try {
             const response = await registerUser(email, password, token)
-            window.location.href = "/home"
+            if (response.status === 200) {
+                window.location.href = "/home"
+            }
+            else {
+                setWarnMsg("Error when registering.")
+            }
         }
         catch (error) {
             console.log(error)
@@ -29,7 +34,7 @@ export default function Register() {
     const submitUser = (event) => {
         event.preventDefault()
 
-        if (password == confirmPass) {
+        if (password === confirmPass) {
             registerPost(email, password, token)
         }
         else {

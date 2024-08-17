@@ -8,12 +8,14 @@ export default function HomePage() {
     const [email, setEmail] = useState("")
     const [name, setName] = useState("")
 
-    const sendJoinRequest = (event) => {
+    const sendJoinRequest = async (event) => {
         event.preventDefault();
 
         try {
-            joinLeaderboard(email, name)
-            alert("An email has been sent for confirmation.")
+            const response = await joinLeaderboard(email, name)
+            if (response.status === 200) {
+                alert("An email has been sent for confirmation.")
+            }
         }
         catch (error) {
             console.log(error)
