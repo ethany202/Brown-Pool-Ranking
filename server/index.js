@@ -18,8 +18,9 @@ function storeToken(email, userName, token) {
             const deleteQuery = "DELETE FROM user_tokens WHERE email = '" + email + "'"
             const updateQuery = `INSERT INTO user_tokens VALUES ('${email}', '${userName}', ${token})`
 
-            executeQuery(deleteQuery, console.log)
-            executeQuery(updateQuery, console.log)
+            executeQuery(deleteQuery, (results) => {
+                executeQuery(updateQuery, console.log)
+            })
 
             sendConfirmationEmail(email, userName, token)
         }
@@ -100,16 +101,26 @@ app.post("/login", (req, res) => {
     try {
         const email = req.body.email;
         const password = req.body.password;
-        const selectQuery = `SELECT * FROM player_creds WHERE email = '${email}' and password = '${password}'`
+        const selectQuery = `
+            SELECT 
+                player_creds.user_id, 
+                player_creds.email,
+                player_creds.password,
+                player_creds.name,
+                player_ranks_with_position.rank_number 
+            FROM player_creds 
+            LEFT JOIN player_ranks_with_position
+            ON player_ranks_with_position.email = player_creds.email
+            WHERE player_creds.email = '${email}' AND player_creds.password = '${password}'
+        `
 
         executeQuery(selectQuery, async (results) => {
-            if (results.length == 1) {
+            if (results.length === 1) {
                 // const passwordMatch = await bcrypt.compare(password, results[0].password);
                 // if (passwordMatch) {
                 //     return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name })
                 // }
-                return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name })
-
+                return res.status(200).json({ user_id: results[0].user_id, email: email, name: results[0].name, rank_number: results[0].rank_number })
             }
             return res.status(500).json({})
         })
@@ -120,10 +131,30 @@ app.post("/login", (req, res) => {
     }
 })
 
+// POST request to send a challenge
+app.post('/send-challenge', (req, res) => {
+    try {
+        const userID = req.body.userID
+        const opponentID = req.body.opponentID
+
+        const createChallenge = `
+            INSERT INTO ongoing_matches(player_one_id, player_one_accepted, player_two_id, player_two_accepted, winner_id)
+            VALUES (${userID}, true, ${opponentID}, null, null)
+        `
+        executeQuery(createChallenge, (results) => {
+            res.status(200).json({ message: "Challenge sent" })
+        })
+    }
+    catch (err) {
+        console.log(err)
+        res.status(500).json({ error: "Error when sending a challenge" })
+    }
+})
+
 // GET request to get all players
 app.get('/all-players', (req, res) => {
     try {
-        executeQuery('SELECT email FROM player_creds', (results) => {
+        executeQuery('SELECT user_id, email FROM player_creds', (results) => {
             res.status(200).json({ list: results })
         })
     }
@@ -137,9 +168,32 @@ app.get('/all-players', (req, res) => {
 app.post('/match-history', (req, res) => {
     try {
         const userID = req.body.userID
-        const selectQuery = `SELECT * FROM match_history WHERE player_one_id=${userID} OR player_two_id=${userID}`
+        const selectQuery = `
+           SELECT 
+                match_id, 
+                match_date, 
+                winner_id, 
+                player_creds.name AS opponent_name,
+                player_two_rank AS opponent_rank 
+            FROM match_history
+            LEFT JOIN player_creds
+            ON player_two_id = player_creds.user_id
+            WHERE player_one_id=${userID}
+            UNION
+            SELECT 
+                match_id, 
+                match_date, 
+                winner_id, 
+                player_creds.name AS opponent_name,
+                player_one_rank AS opponent_rank 
+            FROM match_history
+            LEFT JOIN player_creds
+            ON player_one_id = player_creds.user_id
+            WHERE player_two_id=${userID}
+            ORDER BY match_date DESC
+        `
+
         executeQuery(selectQuery, (results) => {
-            console.log(results)
             res.status(200).json({ list: results })
         })
     }
@@ -155,7 +209,8 @@ app.post('/match-requests', (req, res) => {
         const userID = req.body.userID
         const selectQuery = `
             SELECT 
-                ongoing_matches.match_id, 
+                ongoing_matches.match_id,
+                player_creds.user_id AS opponent_id, 
                 player_creds.name AS opponent, 
                 player_ranks_with_position.rank_number as opponent_rank 
             FROM ongoing_matches 
@@ -183,20 +238,33 @@ app.post('/ongoing-matches', (req, res) => {
         const userID = req.body.userID
         const selectQuery = `
             SELECT 
-                ongoing_matches.match_id, 
-                player_creds.name AS opponent, 
-                player_ranks_with_position.rank_number as opponent_rank ,
-                true as is_ongoing_match
+                match_id,
+                player_creds.user_id AS opponent_id,
+                player_creds.name AS opponent,
+                player_ranks_with_position.rank_number AS opponent_rank,
+                true AS is_ongoing_match
             FROM ongoing_matches 
             LEFT JOIN player_creds
-            ON ongoing_matches.player_one_id = player_creds.user_id
+            ON player_creds.user_id = ongoing_matches.player_one_id
             LEFT JOIN player_ranks_with_position
-            ON player_creds.email = player_ranks_with_position.email
+            ON player_ranks_with_position.email = player_creds.email
             WHERE (player_two_id = ${userID} AND player_two_accepted IS NOT NULL)
+            UNION
+            SELECT 
+                match_id,
+                player_creds.user_id AS opponent_id,
+                player_creds.name AS opponent,
+                player_ranks_with_position.rank_number AS opponent_rank,
+                true AS is_ongoing_match
+            FROM ongoing_matches 
+            LEFT JOIN player_creds
+            ON player_creds.user_id = ongoing_matches.player_two_id
+            LEFT JOIN player_ranks_with_position
+            ON player_ranks_with_position.email = player_creds.email
+            WHERE (player_one_id = ${userID} AND player_two_accepted IS NOT NULL)
         `
 
         executeQuery(selectQuery, (results) => {
-
             res.status(200).json({ list: results })
         })
     }
@@ -250,14 +318,89 @@ app.post('/decline-challenge', (req, res) => {
 // POST request to set match result
 app.post('/send-match-result', (req, res) => {
     try {
-        const userID = req.body.userID
         const matchID = req.body.matchID
         const winnerID = req.body.winnerID
+        const userID = req.body.userID
+        const userRank = req.body.userRank
+        const opponentRank = req.body.opponentRank
 
-        //const getOngoingMatches
+        console.log(winnerID)
+
+        // Check if a player has already sent a result:
+        const checkCurrentResult = `SELECT * FROM ongoing_matches WHERE match_id = ${matchID}`
+
+        executeQuery(checkCurrentResult, (results) => {
+            const player_one_id = results[0].player_one_id
+            const player_two_id = results[0].player_two_id
+
+            var player_one_rank = 0
+            var player_two_rank = 0
+
+            if (player_one_id === userID) {
+                player_one_rank = userRank
+                player_two_rank = opponentRank
+            }
+            else {
+                player_one_rank = opponentRank
+                player_two_rank = userRank
+            }
+
+            if (results[0].winner_id === null) {
+                const updateMatchStatus = `
+                    UPDATE ongoing_matches
+                    SET winner_id = ${winnerID}
+                    WHERE match_id = ${matchID}
+                `
+
+                return executeQuery(updateMatchStatus, (results) => {
+                    res.status(200).json({ message: "Match result recorded" })
+                })
+            }
+            else if (Number(results[0].winner_id) !== Number(winnerID)) {
+                console.log("NO MATCH...")
+
+                const deleteMatchRecord = `
+                    DELETE FROM ongoing_matches
+                    WHERE match_id = ${matchID}
+                `
+
+                return executeQuery(deleteMatchRecord, (results) => {
+                    res.status(200).json({ message: "Match result recorded" })
+                })
+            }
+            else {
+                console.log(`WINNER ID MATCHES: ${winnerID}`)
+
+                const currentDate = new Date()
+                const deleteMatchRecord = `
+                    DELETE FROM ongoing_matches
+                    WHERE match_id = ${matchID}
+                `
+
+                return executeQuery(deleteMatchRecord, (results) => {
+                    const updateMatchHistory = `
+                        INSERT INTO match_history
+                        VALUES (
+                            ${matchID}, 
+                            '${currentDate.getFullYear()}-${currentDate.getMonth() + 1}-${currentDate.getDate()}', 
+                            ${player_one_id},
+                            ${player_one_rank},
+                            ${player_two_id},
+                            ${player_two_rank},
+                            ${winnerID}
+                        )
+                    `
+
+                    executeQuery(updateMatchHistory, (results) => {
+                        res.status(200).json({ message: "Match result recorded" })
+                    })
+                })
+            }
+        })
+
     }
     catch (err) {
-
+        res.status(500).json({ error: "error when recording match" })
     }
 })
 
