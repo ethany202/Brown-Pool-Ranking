@@ -97,6 +97,9 @@ async function updateLeaderboard(playerOneID, playerTwoID, winnerID) {
 
 async function updateLeaderboardHelper(playerOneID, playerOnePts, playerTwoID, playerTwoPts, winnerID) {
     try {
+        playerOnePts += 1;
+        playerTwoPts += 1;
+
         const pointSum = playerOnePts + playerTwoPts
 
         if (Number(winnerID) === Number(playerOneID)) {
@@ -185,6 +188,8 @@ app.post("/new-member", (req, res) => {
 // POST request to check if a user login is valid
 app.post("/login", async (req, res) => {
     try {
+        console.log("Entered")
+
         const selectQuery = `
             SELECT 
                 player_creds.user_id, 
